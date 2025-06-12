@@ -65,7 +65,8 @@ class ModelWorker:
         self.tokenizer, self.model, self.image_processor, self.context_len = load_deepfake_model(
             model_path, model_base, self.model_name, load_8bit, load_4bit, device=self.device, use_flash_attn=use_flash_attn)
         self.is_multimodal = 'llava' in self.model_name.lower()
-        self.model_name = 'ours'
+        # self.model_name = self.model_name.split('-', maxsplit=2)[0]    # choose the name prefix
+        self.model_name = 'M2F2-Det'
         self.model = self.model.to('cuda')
         if not no_register:
             self.register_to_controller()

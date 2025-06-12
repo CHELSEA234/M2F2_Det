@@ -252,6 +252,7 @@ def http_bot(state, model_selector, temperature, top_p, max_new_tokens, request:
         response = requests.post(worker_addr + "/worker_generate_stream",
             headers=headers, json=pload, stream=True, timeout=10)
         for chunk in response.iter_lines(decode_unicode=False, delimiter=b"\0"):
+            print(f'Get chunk: {chunk}')
             if chunk:
                 data = json.loads(chunk.decode())
                 if data["error_code"] == 0:
@@ -263,7 +264,6 @@ def http_bot(state, model_selector, temperature, top_p, max_new_tokens, request:
                     state.messages[-1][-1] = output
                     yield (state, state.to_gradio_chatbot()) + (disable_btn, disable_btn, disable_btn, enable_btn, enable_btn)
                     return
-                time.sleep(0.03)
     except requests.exceptions.RequestException as e:
         state.messages[-1][-1] = server_error_msg
         yield (state, state.to_gradio_chatbot()) + (disable_btn, disable_btn, disable_btn, enable_btn, enable_btn)
@@ -317,7 +317,7 @@ def build_demo(embed_mode, cur_dir=None, concurrency_count=10):
     os.environ["GRADIO_TEMP_DIR"] = os.path.join(os.getcwd(), "tmp")
 
     textbox = gr.Textbox(show_label=False, placeholder="Enter text and press ENTER", container=False)
-    with gr.Blocks(title="LLaVA", theme=gr.themes.Default(), css=block_css) as demo:
+    with gr.Blocks(title="M2F2-Det: Rethinking Visual-language Model in Face Forensic: Multi-modal Interpretable Forged Face Detector", theme=gr.themes.Default(), css=block_css) as demo:
         state = gr.State()
         input_mode = gr.State(value="image")
 
@@ -340,7 +340,7 @@ def build_demo(embed_mode, cur_dir=None, concurrency_count=10):
                     ["Crop", "Resize", "Pad", "Default"],
                     value="Default",
                     label="Preprocess for non-square image", visible=False)
-                change_btn = gr.Button(value="Toggle Image or Video")
+                # change_btn = gr.Button(value="Toggle Image or Video")d
 
                 # if cur_dir is None:
                 #     cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -437,11 +437,11 @@ def build_demo(embed_mode, cur_dir=None, concurrency_count=10):
             concurrency_limit=concurrency_count
         )
         
-        change_btn.click(
-            change_input_mode,
-            [input_mode],
-            [input_mode, imagebox, videobox]
-        )
+        # change_btn.click(
+        #     change_input_mode,
+        #     [input_mode],
+        #     [input_mode, imagebox, videobox]
+        # )
 
         if args.model_list_mode == "once":
             demo.load(
