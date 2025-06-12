@@ -6,13 +6,14 @@ export PYTHONPATH="$current_path:$PYTHONPATH"
 # export NCCL_P2P_DISABLE="1"
 # export NCCL_IB_DISABLE="1"
 
-CUDA_NUM=0,1,2,3
+CUDA_NUM=1,2,3,4,5,7
+# CUDA_NUM=1,2,3,4
 MODEL_VERSION="./checkpoints/llava-v1.5-7b-deepfake-stage-2"
-DATA_PATH="/user/guoxia11/cvlshare/cvl-guoxia11/M2F2_Det/image_text_pair/M2F2_json/DDVQA/train_json_new/stage_2_deepfake_eccv_judge_desc_mixed_app_learn_desc_1-2_mixed_multi_single_convs.json"
-IMG_FOLDER="/"
+DATA_PATH="./utils/DDVQA_split/c40/train_DDVQA_format.json"
+IMG_FOLDER="./utils/DDVQA_images/c40/train"
 OUTPUT_DIR="./checkpoints/llava-v1.5-7b-deepfake_stage-3-delta"
-DEEPFAKE_CKPT_PATH="/user/guoxia11/cvlshare/cvl-guoxia11/M2F2_Det/mm_deepfake_densenet121_pure.pth"
-VISION_TOWER="/user/guoxia11/cvlshare/cvl-guoxia11/huggingface/hub/clip-vit-large-patch14-336"
+DEEPFAKE_CKPT_PATH="./utils/weights/M2F2_Det_densenet121.pth"
+VISION_TOWER="openai/clip-vit-large-patch14-336"
 
 deepspeed --include localhost:$CUDA_NUM llava/train/train_deepfake.py \
     --lora_enable True --lora_r 128 --lora_alpha 256 --mm_projector_lr 2e-5 \
@@ -32,13 +33,13 @@ deepspeed --include localhost:$CUDA_NUM llava/train/train_deepfake.py \
     --mm_use_im_patch_token False \
     --bf16 True \
     --output_dir $OUTPUT_DIR \
-    --num_train_epochs 10 \
-    --per_device_train_batch_size 8 \
+    --num_train_epochs 1 \
+    --per_device_train_batch_size 20 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1200 \
+    --save_steps 1500 \
     --save_total_limit 1 \
     --learning_rate 2e-5 \
     --weight_decay 0. \

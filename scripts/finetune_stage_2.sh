@@ -6,13 +6,13 @@ export PYTHONPATH="$current_path:$PYTHONPATH"
 # export NCCL_P2P_DISABLE="1"
 # export NCCL_IB_DISABLE="1"
 
-CUDA_NUM=1,2,3,4
+CUDA_NUM=1,2,3,4,5,7
 MODEL_VERSION="./checkpoints/llava-1.5-7b-deepfake-rand-proj-v1"
-DATA_PATH="/user/guoxia11/cvlshare/cvl-guoxia11/M2F2_Det/image_text_pair/M2F2_json/DDVQA/train_json_new/stage_1_deepfake_eccv_judge_only_1.4k.json"
-IMG_FOLDER="/"
+DATA_PATH="./utils/DDVQA_split/c40/train_DDVQA_format_judge_only.json"
+IMG_FOLDER="./utils/DDVQA_images/c40/train"
 OUTPUT_DIR="./checkpoints/llava-v1.5-7b-deepfake_stage-2-proj"
-DEEPFAKE_CKPT_PATH="/user/guoxia11/cvlshare/cvl-guoxia11/M2F2_Det/mm_deepfake_densenet121_pure.pth"
-VISION_TOWER="/user/guoxia11/cvlshare/cvl-guoxia11/huggingface/hub/clip-vit-large-patch14-336"
+DEEPFAKE_CKPT_PATH="./utils/weights/M2F2_Det_densenet121.pth"
+VISION_TOWER="openai/clip-vit-large-patch14-336"
 
 deepspeed --include localhost:$CUDA_NUM --master_port 29801 llava/train/train_deepfake.py \
     --deepspeed ./scripts/zero2.json \
@@ -34,12 +34,12 @@ deepspeed --include localhost:$CUDA_NUM --master_port 29801 llava/train/train_de
     --bf16 True \
     --output_dir $OUTPUT_DIR \
     --num_train_epochs 1 \
-    --per_device_train_batch_size 42 \
+    --per_device_train_batch_size 40 \
     --per_device_eval_batch_size 1 \
     --gradient_accumulation_steps 1 \
     --evaluation_strategy "no" \
     --save_strategy "steps" \
-    --save_steps 1100 \
+    --save_steps 9 \
     --save_total_limit 1 \
     --learning_rate 2e-5 \
     --weight_decay 0. \
