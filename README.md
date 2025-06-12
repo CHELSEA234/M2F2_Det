@@ -1,5 +1,14 @@
 # Rethinking Vision-Language Model in Face Forensics: Multi-Modal Interpretable Forged Face Detector
 
+<div align="center">
+  
+[![arXiv](https://img.shields.io/badge/Arxiv-2503.20188-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2503.20188) 
+[![License](https://img.shields.io/badge/License-MIT%20-yellow)](./LICENSE) 
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=CHELSEA234.M2F2_Det)
+[![hf_space](https://img.shields.io/badge/🤗-Huggingface%20Checkpoint-blue.svg)](https://huggingface.co/zhipeixu/fakeshield-v1-22b)
+
+</div>
+  
 This repository contains the implementation and datasets for the paper: Rethinking Vision-Language Model in Face Forensics: Multi-Modal Interpretable Forged Face Detector. The paper ([https://arxiv.org/abs/2204.00964](https://arxiv.org/pdf/2503.20188)) is presented in CVPR 2025 (Oral).
 
 > Deepfake detection is a long-established research topic vital for mitigating the spread of malicious misinformation.
@@ -16,6 +25,9 @@ demonstrating its effectiveness in identifying and explaining diverse forgeries.
 <p align="center">
   <img src="asset/teaser.png" alt="Overview" width="700">
 </p>
+
+## Updates
+* **[2025.06.13]** 🎉🎉🎉 The first version of the code is released. See you at CVPR25~
 
 ## Setup
 ### Dataset
@@ -44,7 +56,7 @@ conda env create -f environment.yml
 First, please download the pre-trained CLIP image encoder of LLaVA and put it in `utils/weights`: [[Google Drive]](https://drive.google.com/file/d/19oEpKB96xJVSrwkLV0ewje-W2dfBAR58/view?usp=drive_link).
 
 #### Detection performance: 
-Download **FF++ (test only)** and put M2F2-Det's detector-only weights [[Google Drive]](https://drive.google.com/file/d/1X1ZUZkCwqg9mrsqoOS0EoO3v5WABNBAw/view?usp=drive_link) in`checkpoints/stage_1`, then run:
+Download **FF++ (test only)** and moify this [line](./stage_1_detection_inference.py#L145). Then put M2F2-Det's detector-only weights [[Google Drive]](https://drive.google.com/file/d/1X1ZUZkCwqg9mrsqoOS0EoO3v5WABNBAw/view?usp=drive_link) in`checkpoints/stage_1` and run:
 
 ```bash
 bash stage_1_inference.sh
@@ -57,13 +69,16 @@ python eval/eval_judgement.py
 python eval/eval_explanation.py
 ```
 
-First please unzip ```utils/DDVQA_images/c40.zip``` and put M2F2-Det weights [[HuggingFace]](https://github.com/Reality-Defender/Research-DD-VQA) under ```checkpoints```. Then run:
+First please unzip ```utils/DDVQA_images/c40.zip``` and put M2F2-Det weights [[Hugging Face]](https://huggingface.co/CHELSEA234/llava-v1.5-7b-M2F2-Det) under ```checkpoints```:
 ```bash
+cd checkpoints
+git lfs clone https://huggingface.co/CHELSEA234/llava-v1.5-7b-M2F2-Det
+cd ..
 bash stage_3_inference_det.sh  ## results into outputs/DDVQA/DDVQA_det_c40.jsonl 
 bash stage_3_inference_exp.sh  ## results into outputs/DDVQA/DDVQA_exp_c40.jsonl 
 ```
 
-#### Gradio Demo:
+## Gradio Demo:
 We set up our demo based on the awesome LLaVA repos at [link](https://github.com/haotian-liu/LLaVA?tab=readme-ov-file#demo).
 
 To launch a Gradio demo locally, please run the following commands one by one.
@@ -79,6 +94,8 @@ To launch a Gradio demo locally, please run the following commands one by one.
 3. Launch a model worker
 `python -m llava.serve.model_worker --host 0.0.0.0 --controller http://localhost:10000 --port 40000 --worker http://localhost:40000 --model-path $M2F2-Det_checkpoint$
 `
+
+4. For a better user experience, please first checkout cropped images from ```utils/DDVQA_images/``` with the prompt "**Determine the authenticity of this image**".
 
 ## Train 
 
@@ -155,7 +172,7 @@ Key parameters to modify in the script:
 <details>
 <summary>Merging</summary>
   
-After fine-tuning, `merge_stage23.sh` merges **Stage-2-weights-Delta** with **Stage-2-init-weights** into **Stage-2-weights** as:
+After fine-tuning, the follow code merges **Stage-2-weights-Delta** with **Stage-2-init-weights** into **Stage-2-weights** as:
 
 ```
 python scripts/merge_lora_weights_deepfake.py
@@ -191,7 +208,7 @@ Key parameters to modify in the script:
 <details>
 <summary>Merging</summary>
 
-After training, `merge_stage3.sh` merges **Stage-3-weights-Delta** into **M2F2-Det** for the inference, as:
+After training, we merge **Stage-3-weights-Delta** into **M2F2-Det** for the inference, as:
 
 ```bash
 python scripts/merge_lora_weights_deepfake.py \
